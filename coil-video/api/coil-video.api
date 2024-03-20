@@ -1,51 +1,42 @@
-public final class coil/decode/VideoFrameDecoder : coil/decode/Decoder {
-	public static final field Companion Lcoil/decode/VideoFrameDecoder$Companion;
-	public static final field VIDEO_FRAME_MICROS_KEY Ljava/lang/String;
-	public static final field VIDEO_FRAME_OPTION_KEY Ljava/lang/String;
-	public fun <init> (Landroid/content/Context;)V
-	public fun decode (Lcoil/bitmap/BitmapPool;Lokio/BufferedSource;Lcoil/size/Size;Lcoil/decode/Options;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun handles (Lokio/BufferedSource;Ljava/lang/String;)Z
+public final class coil3/video/ImageRequestsKt {
+	public static final fun getVideoFrameMicros (Lcoil3/Extras$Key$Companion;)Lcoil3/Extras$Key;
+	public static final fun getVideoFrameMicros (Lcoil3/request/ImageRequest;)J
+	public static final fun getVideoFrameMicros (Lcoil3/request/Options;)J
+	public static final fun getVideoFrameOption (Lcoil3/Extras$Key$Companion;)Lcoil3/Extras$Key;
+	public static final fun getVideoFrameOption (Lcoil3/request/ImageRequest;)I
+	public static final fun getVideoFrameOption (Lcoil3/request/Options;)I
+	public static final fun getVideoFramePercent (Lcoil3/Extras$Key$Companion;)Lcoil3/Extras$Key;
+	public static final fun getVideoFramePercent (Lcoil3/request/ImageRequest;)D
+	public static final fun getVideoFramePercent (Lcoil3/request/Options;)D
+	public static final fun videoFrameMicros (Lcoil3/request/ImageRequest$Builder;J)Lcoil3/request/ImageRequest$Builder;
+	public static final fun videoFrameMillis (Lcoil3/request/ImageRequest$Builder;J)Lcoil3/request/ImageRequest$Builder;
+	public static final fun videoFrameOption (Lcoil3/request/ImageRequest$Builder;I)Lcoil3/request/ImageRequest$Builder;
+	public static final fun videoFramePercent (Lcoil3/request/ImageRequest$Builder;D)Lcoil3/request/ImageRequest$Builder;
 }
 
-public final class coil/decode/VideoFrameDecoder$Companion {
+public final class coil3/video/MediaDataSourceFetcher : coil3/fetch/Fetcher {
+	public fun <init> (Landroid/media/MediaDataSource;Lcoil3/request/Options;)V
+	public fun fetch (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public abstract class coil/fetch/VideoFrameFetcher : coil/fetch/Fetcher {
-	public static final field Companion Lcoil/fetch/VideoFrameFetcher$Companion;
-	public static final field VIDEO_FRAME_MICROS_KEY Ljava/lang/String;
-	public static final field VIDEO_FRAME_OPTION_KEY Ljava/lang/String;
-	public fun <init> (Landroid/content/Context;)V
-	public fun fetch (Lcoil/bitmap/BitmapPool;Ljava/lang/Object;Lcoil/size/Size;Lcoil/decode/Options;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public fun handles (Ljava/lang/Object;)Z
-	protected abstract fun setDataSource (Landroid/media/MediaMetadataRetriever;Ljava/lang/Object;)V
+public final class coil3/video/MediaDataSourceFetcher$Factory : coil3/fetch/Fetcher$Factory {
+	public fun <init> ()V
+	public fun create (Landroid/media/MediaDataSource;Lcoil3/request/Options;Lcoil3/ImageLoader;)Lcoil3/fetch/Fetcher;
+	public synthetic fun create (Ljava/lang/Object;Lcoil3/request/Options;Lcoil3/ImageLoader;)Lcoil3/fetch/Fetcher;
 }
 
-public final class coil/fetch/VideoFrameFetcher$Companion {
+public final class coil3/video/MediaDataSourceFetcher$MediaSourceMetadata : coil3/decode/ImageSource$Metadata {
+	public fun <init> (Landroid/media/MediaDataSource;)V
+	public final fun getMediaDataSource ()Landroid/media/MediaDataSource;
 }
 
-public final class coil/fetch/VideoFrameFileFetcher : coil/fetch/VideoFrameFetcher {
-	public fun <init> (Landroid/content/Context;)V
-	public fun handles (Ljava/io/File;)Z
-	public synthetic fun handles (Ljava/lang/Object;)Z
-	public fun key (Ljava/io/File;)Ljava/lang/String;
-	public synthetic fun key (Ljava/lang/Object;)Ljava/lang/String;
-	public synthetic fun setDataSource (Landroid/media/MediaMetadataRetriever;Ljava/lang/Object;)V
+public final class coil3/video/VideoFrameDecoder : coil3/decode/Decoder {
+	public fun <init> (Lcoil3/decode/ImageSource;Lcoil3/request/Options;)V
+	public fun decode (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class coil/fetch/VideoFrameUriFetcher : coil/fetch/VideoFrameFetcher {
-	public fun <init> (Landroid/content/Context;)V
-	public fun handles (Landroid/net/Uri;)Z
-	public synthetic fun handles (Ljava/lang/Object;)Z
-	public fun key (Landroid/net/Uri;)Ljava/lang/String;
-	public synthetic fun key (Ljava/lang/Object;)Ljava/lang/String;
-	public synthetic fun setDataSource (Landroid/media/MediaMetadataRetriever;Ljava/lang/Object;)V
-}
-
-public final class coil/request/Videos {
-	public static final fun videoFrameMicros (Lcoil/request/ImageRequest$Builder;J)Lcoil/request/ImageRequest$Builder;
-	public static final fun videoFrameMicros (Lcoil/request/Parameters;)Ljava/lang/Long;
-	public static final fun videoFrameMillis (Lcoil/request/ImageRequest$Builder;J)Lcoil/request/ImageRequest$Builder;
-	public static final fun videoFrameOption (Lcoil/request/ImageRequest$Builder;I)Lcoil/request/ImageRequest$Builder;
-	public static final fun videoFrameOption (Lcoil/request/Parameters;)Ljava/lang/Integer;
+public final class coil3/video/VideoFrameDecoder$Factory : coil3/decode/Decoder$Factory {
+	public fun <init> ()V
+	public fun create (Lcoil3/fetch/SourceFetchResult;Lcoil3/request/Options;Lcoil3/ImageLoader;)Lcoil3/decode/Decoder;
 }
 

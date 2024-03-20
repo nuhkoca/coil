@@ -1,24 +1,59 @@
-import coil.Library
-import coil.addAndroidTestDependencies
-import coil.addTestDependencies
-import coil.setupLibraryModule
-import org.jetbrains.kotlin.config.KotlinCompilerVersion
+import coil3.addAllMultiplatformTargets
+import coil3.androidInstrumentedTest
+import coil3.androidLibrary
+import coil3.androidUnitTest
+import coil3.skikoAwtRuntimeDependency
 
 plugins {
     id("com.android.library")
-    id("kotlin-android")
-    id("org.jetbrains.dokka")
-    id("com.vanniktech.maven.publish")
+    id("kotlin-multiplatform")
+    id("kotlinx-atomicfu")
 }
 
-setupLibraryModule()
+addAllMultiplatformTargets()
+androidLibrary(name = "coil3.svg")
 
-dependencies {
-    api(project(":coil-base"))
-
-    implementation(Library.ANDROIDX_CORE)
-    implementation(Library.ANDROID_SVG)
-
-    addTestDependencies(KotlinCompilerVersion.VERSION)
-    addAndroidTestDependencies(KotlinCompilerVersion.VERSION)
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(projects.coilCore)
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.core)
+                implementation(libs.svg)
+            }
+        }
+        named("nonAndroidMain") {
+            dependencies {
+                implementation(libs.skiko)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(projects.internal.testUtils)
+                implementation(libs.bundles.test.common)
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation(projects.internal.testUtils)
+                implementation(skikoAwtRuntimeDependency(libs.versions.skiko.get()))
+            }
+        }
+        androidUnitTest {
+            dependencies {
+                implementation(projects.internal.testUtils)
+                implementation(libs.bundles.test.jvm)
+            }
+        }
+        androidInstrumentedTest {
+            dependencies {
+                implementation(projects.internal.testUtils)
+                implementation(libs.bundles.test.android)
+            }
+        }
+    }
 }

@@ -13,6 +13,16 @@ build
 *.iws
 .idea
 
+# Kotlin
+.kotlin
+
 # Docs
 docs/api
 site
+
+# Xcode
+*.xcuserstate
+**/xcuserdata
+
+# https://github.com/square/okio/issues/1163
+**/webpack.config.d/applyNodePolyfillPlugin.js

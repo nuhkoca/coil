@@ -1,16 +1,39 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = "coil-root"
+
+// https://docs.gradle.org/7.4/userguide/declaring_dependencies.html#sec:type-safe-project-accessors
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
 // Public modules
 include(
-    "coil-base",
-    "coil-singleton",
-    "coil-compose-base",
-    "coil-compose-singleton",
+    "coil",
+    "coil-core",
+    "coil-compose",
+    "coil-compose-core",
+    "coil-network-core",
+    "coil-network-ktor",
+    "coil-network-okhttp",
     "coil-gif",
     "coil-svg",
     "coil-video",
+    "coil-bom",
+    "coil-test",
 )
 
 // Private modules
 include(
-    "coil-sample",
-    "coil-test",
+    "internal:benchmark",
+    "internal:test-utils",
+    "internal:test-paparazzi",
+    "internal:test-roborazzi",
+    "samples:compose",
+    "samples:shared",
+    "samples:view",
 )

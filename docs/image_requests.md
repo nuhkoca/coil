@@ -6,7 +6,7 @@
 
 ```kotlin
 val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
+    .data("https://example.com/image.jpg")
     .crossfade(true)
     .target(imageView)
     .build()
@@ -18,4 +18,4 @@ Once you've created a request pass it to an `ImageLoader` to enqueue/execute it:
 imageLoader.enqueue(request)
 ```
 
-See the [API documentation](../api/coil-base/coil.request/-image-request/) for more information.
+See the [API documentation](/coil/api/coil-core/coil3.request/-image-request/) for more information.

@@ -10,14 +10,12 @@ Android için Kotlin Coroutines tarafından desteklenen bir görüntü yükleme 
 
 Coil şunların baş harflerinden oluşur: **Co**routine **I**mage **L**oader.
 
-[Instacart](https://www.instacart.com)'da ❤️ ile yapıldı. Çeviriler: [Korece](README-ko.md), [Çince](README-zh.md)
-
 ## Yükleme
 
 Coil `mavenCentral()`'da mevcuttur.
 
 ```kotlin
-implementation("io.coil-kt:coil:1.3.2")
+implementation("io.coil-kt:coil:2.6.0")
 ```
 
 ## Hızlı Başlangıç
@@ -26,7 +24,7 @@ Görüntüyü `ImageView`'e yüklemek için `load` uzantı fonksiyonunu kullanı
 
 ```kotlin
 // URL
-imageView.load("https://www.example.com/image.jpg")
+imageView.load("https://example.com/image.jpg")
 
 // Resource
 imageView.load(R.drawable.image)
@@ -40,7 +38,7 @@ imageView.load(File("/path/to/image.jpg"))
 İstekler tercihe bağlı bir takip eden lambda ile yapılandırılabilir:
 
 ```kotlin
-imageView.load("https://www.example.com/image.jpg") {
+imageView.load("https://example.com/image.jpg") {
     crossfade(true)
     placeholder(R.drawable.image)
     transformations(CircleCropTransformation())
@@ -69,7 +67,7 @@ Bir görüntüyü özel bir hedefe yüklemek için, bir `ImageRequest`'i `enqueu
 
 ```kotlin
 val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
+    .data("https://example.com/image.jpg")
     .target { drawable ->
         // Sonucu işleyin.
     }
@@ -81,28 +79,22 @@ Bir görüntüyü mecburi bir şekilde yüklemek için, bir `ImageRequest`'i `ex
 
 ```kotlin
 val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
+    .data("https://example.com/image.jpg")
     .build()
 val drawable = imageLoader.execute(request).drawable
 ```
 
 Coil'in [dokümantasyonunun tamamına buradan](https://coil-kt.github.io/coil/getting_started/) ulaşabilirsiniz.
 
-## Gereksinimler
-
-- AndroidX
-- Min SDK 14+
-- [Java 8+](https://coil-kt.github.io/coil/getting_started/#java-8)
-
 ## R8 / Proguard
 
 Coil R8 ile tamamen uyumludur ve ek kurallar eklemeyi gerektirmez.
 
-Eğer Proguard kullanıyorsanız, [Coroutines](https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/jvm/resources/META-INF/proguard/coroutines.pro), [OkHttp](https://github.com/square/okhttp/blob/master/okhttp/src/main/resources/META-INF/proguard/okhttp3.pro) ve [Okio](https://github.com/square/okio/blob/master/okio/src/jvmMain/resources/META-INF/proguard/okio.pro) için kurallar eklemeniz gerekebilir.
+Eğer Proguard kullanıyorsanız, [Coroutines](https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/jvm/resources/META-INF/proguard/coroutines.pro) ve [OkHttp](https://github.com/square/okhttp/blob/master/okhttp/src/jvmMain/resources/META-INF/proguard/okhttp3.pro) için kurallar eklemeniz gerekebilir.
 
 ## Lisans
 
-    Copyright 2021 Coil Contributors
+    Copyright 2023 Coil Contributors
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

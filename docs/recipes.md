@@ -6,118 +6,42 @@ See a common use case that isn't covered? Feel free to submit a PR with a new se
 
 ## Palette
 
-[Palette](https://developer.android.com/training/material/palette-colors?hl=en) allows you to exact prominent colors from an image. To create a `Palette`, you'll need access to an image's `Bitmap`. This can be done in a number of ways:
+[Palette](https://developer.android.com/training/material/palette-colors?hl=en) allows you to extract prominent colors from an image. To create a `Palette`, you'll need access to an image's `Bitmap`. This can be done in a number of ways:
 
-#### Enqueue
-
-You can get access to an image's bitmap by setting a `Target` and enqueuing `ImageRequest`:
+You can get access to an image's bitmap by setting a `ImageRequest.Listener` and enqueuing an `ImageRequest`:
 
 ```kotlin
-val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
-    .allowHardware(false) // Disable hardware bitmaps.
-    .target { drawable ->
-        // Generate the Palette on a background thread.
-        val task = Palette.Builder(drawable.toBitmap()).generate { palette ->
-            // Consume the palette.
-        }
-    }
-    .build()
-val disposable = imageLoader.enqueue(request)
-```
-
-#### Execute
-
-You can also execute an `ImageRequest`, which returns the drawable imperatively:
-
-```kotlin
-val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
-    .allowHardware(false) // Disable hardware bitmaps.
-    .build()
-val drawable = (imageLoader.execute(request) as SuccessResult).drawable
-
-val palette = coroutineScope {
-    launch(Dispatchers.IO) {
-        Palette.Builder(drawable.toBitmap()).generate()
-    }
-}
-```
-
-#### Transition
-
-There may be cases where you want to load an image into a `PoolableViewTarget` (e.g. `ImageViewTarget`) while extracting the image's colors in parallel. For these cases, you can use a custom [`Transition`](transitions.md) to get access to the underlying bitmap:
-
-```kotlin
-class PaletteTransition(
-    private val delegate: Transition?,
-    private val onGenerated: (Palette) -> Unit
-) : Transition {
-
-    override suspend fun transition(target: TransitionTarget, result: RequestResult) {
-        // Execute the delegate transition.
-        val delegateJob = delegate?.let { delegate ->
-            coroutineScope {
-                launch(Dispatchers.Main.immediate) {
-                    delegate.transition(target, result)
-                }
-            }
-        }
-
-        // Compute the palette on a background thread.
-        if (result is SuccessResult) {
-            val bitmap = result.drawable.toBitmap()
-            val palette = withContext(Dispatchers.IO) {
-                Palette.Builder(bitmap).generate()
-            }
-            onGenerated(palette)
-        }
-
-        delegateJob?.join()
-    }
-}
-
-// ImageRequest
-val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
-    .allowHardware(false) // Disable hardware bitmaps.
-    .transition(PaletteTransition(CrossfadeTransition()) { palette ->
-        // Consume the palette.
-    })
-    .target(imageView)
-    .build()
-imageLoader.enqueue(request)
-
-// ImageView.load
-imageView.load("https://www.example.com/image.jpg") {
+imageView.load("https://example.com/image.jpg") {
+    // Disable hardware bitmaps as Palette needs to read the image's pixels.
     allowHardware(false)
-    transition(PaletteTransition(CrossfadeTransition()) { palette ->
-        // Consume the palette.
-    })
+    listener(
+        onSuccess = { _, result ->
+            // Create the palette on a background thread.
+            Palette.Builder(result.drawable.toBitmap()).generate { palette ->
+                // Consume the palette.
+            }
+        }
+    )
 }
 ```
-
-!!! Note
-    You should not pass the drawable outside the scope of `Transition.transition`. This can cause the drawable's underlying bitmap to be pooled while it is still in use, which can result in rendering issues and crashes.
 
 ## Using a custom OkHttpClient
 
-Coil uses [`OkHttp`](https://github.com/square/okhttp/) for all its networking operations. You can specify a custom `OkHttpClient` when creating your `ImageLoader`:
+Coil uses [OkHttp](https://github.com/square/okhttp/) for all its networking operations. You can specify a custom `OkHttpClient` when creating your `ImageLoader`:
 
 ```kotlin
 val imageLoader = ImageLoader.Builder(context)
     // Create the OkHttpClient inside a lambda so it will be initialized lazily on a background thread.
     .okHttpClient {
         OkHttpClient.Builder()
-            // You need to set the cache for disk caching to work.
-            .cache(CoilUtils.createDefaultCache(context))
+            .addInterceptor(CustomInterceptor())
             .build()
     }
     .build()
 ```
 
 !!! Note
-    If you already have a built `OkHttpClient`, use [`newBuilder()`](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-http-url/new-builder/) to build a new client that shares resources with the original. Also, it's recommended to use a separate `Cache` instance for your Coil `OkHttpClient`. Image files can quickly evict more important cached network responses if they share the same cache.
+    If you already have a built `OkHttpClient`, use [`newBuilder()`](https://square.github.io/okhttp/4.x/okhttp/okhttp3/-ok-http-client/#customize-your-client-with-newbuilder) to build a new client that shares resources with the original.
 
 #### Headers
 
@@ -125,8 +49,8 @@ Headers can be added to your image requests in one of two ways. You can set head
 
 ```kotlin
 val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
-    .setHeader("Cache-Control", "max-age=31536000,public")
+    .data("https://example.com/image.jpg")
+    .setHeader("Cache-Control", "no-cache")
     .target(imageView)
     .build()
 imageLoader.execute(request)
@@ -135,23 +59,24 @@ imageLoader.execute(request)
 Or you can create an OkHttp [`Interceptor`](https://square.github.io/okhttp/interceptors/) that sets headers for every request executed by your `ImageLoader`:
 
 ```kotlin
-class ResponseHeaderInterceptor(
+class RequestHeaderInterceptor(
     private val name: String,
     private val value: String
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val response = chain.proceed(chain.request())
-        return response.newBuilder().header(name, value).build()
+        val request = chain.request().newBuilder()
+            .header(name, value)
+            .build()
+        return chain.proceed(request)
     }
 }
 
 val imageLoader = ImageLoader.Builder(context)
     .okHttpClient {
         OkHttpClient.Builder()
-            .cache(CoilUtils.createDefaultCache(context))
             // This header will be added to every image request.
-            .addNetworkInterceptor(ResponseHeaderInterceptor("Cache-Control", "max-age=31536000,public"))
+            .addNetworkInterceptor(RequestHeaderInterceptor("Cache-Control", "no-cache"))
             .build()
     }
     .build()
@@ -175,11 +100,11 @@ To achieve this effect, use the `MemoryCache.Key` of the first request as the `I
 
 ```kotlin
 // First request
-listImageView.load("https://www.example.com/image.jpg")
+listImageView.load("https://example.com/image.jpg")
 
-// Second request
-detailImageView.load("https://www.example.com/image.jpg") {
-    placeholderMemoryCacheKey(listImageView.metadata.memoryCacheKey)
+// Second request (once the first request finishes)
+detailImageView.load("https://example.com/image.jpg") {
+    placeholderMemoryCacheKey(listImageView.result.memoryCacheKey)
 }
 ```
 
@@ -192,7 +117,7 @@ detailImageView.load("https://www.example.com/image.jpg") {
 
 - **Shared element transitions are incompatible with hardware bitmaps.** You should set `allowHardware(false)` to disable hardware bitmaps for both the `ImageView` you are animating from and the view you are animating to. If you don't, the transition will throw an `java.lang.IllegalArgumentException: Software rendering doesn't support hardware bitmaps` exception.
 
-- Use the [`MemoryCache.Key`](getting_started.md#memory-cache) of the start image as the [`placeholderMemoryCacheKey`](../api/coil-base/coil.request/-image-request/-builder/placeholder-memory-cache-key.html) for the end image. This ensures that the start image is used as the placeholder for the end image, which results in a smooth transition with no white flashes if the image is in the memory cache.
+- Use the [`MemoryCache.Key`](getting_started.md#memory-cache) of the start image as the [`placeholderMemoryCacheKey`](/coil/api/coil-core/coil3.request/-image-request/-builder/placeholder-memory-cache-key) for the end image. This ensures that the start image is used as the placeholder for the end image, which results in a smooth transition with no white flashes if the image is in the memory cache.
 
 - Use [`ChangeImageTransform`](https://developer.android.com/reference/android/transition/ChangeImageTransform) and [`ChangeBounds`](https://developer.android.com/reference/android/transition/ChangeBounds) together for optimal results.
 
@@ -202,9 +127,9 @@ Coil does not provide a `Target` for [`RemoteViews`](https://developer.android.c
 
 ```kotlin
 class RemoteViewsTarget(
-    private val context: Context, 
-    private val componentName: ComponentName, 
-    private val remoteViews: RemoteViews, 
+    private val context: Context,
+    private val componentName: ComponentName,
+    private val remoteViews: RemoteViews,
     @IdRes private val imageViewResId: Int
 ) : Target {
 
@@ -224,10 +149,41 @@ class RemoteViewsTarget(
 Then `enqueue`/`execute` the request like normal:
 
 ```kotlin
-val target = RemoteViewsTarget(...)
 val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
-    .target(target)
+    .data("https://example.com/image.jpg")
+    .target(RemoteViewsTarget(context, componentName, remoteViews, imageViewResId))
     .build()
 imageLoader.enqueue(request)
+```
+
+## Transforming Painters
+
+Both `AsyncImage` and `AsyncImagePainter` have `placeholder`/`error`/`fallback` arguments that accept `Painter`s. Painters are less flexible than using composables, but are faster as Coil doesn't need to use subcomposition. That said, it may be necessary to inset, stretch, tint, or transform your painter to get the desired UI. To accomplish this, [copy this Gist into your project](https://gist.github.com/colinrtwhite/c2966e0b8584b4cdf0a5b05786b20ae1) and wrap the painter like so:
+
+```kotlin
+AsyncImage(
+    model = "https://example.com/image.jpg",
+    contentDescription = null,
+    placeholder = forwardingPainter(
+        painter = painterResource(R.drawable.placeholder),
+        colorFilter = ColorFilter(Color.Red),
+        alpha = 0.5f
+    )
+)
+```
+
+The `onDraw` can be overwritten using a trailing lambda:
+
+```kotlin
+AsyncImage(
+    model = "https://example.com/image.jpg",
+    contentDescription = null,
+    placeholder = forwardingPainter(painterResource(R.drawable.placeholder)) { info ->
+        inset(50f, 50f) {
+            with(info.painter) {
+                draw(size, info.alpha, info.colorFilter)
+            }
+        }
+    }
+)
 ```

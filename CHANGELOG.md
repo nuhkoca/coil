@@ -1,5 +1,513 @@
 # Changelog
 
+## [3.0.0-alpha06] - February 29, 2024
+
+- Downgrade Skiko to 0.7.93.
+- [For the full list of important changes in 3.x, check out the upgrade guide.](https://coil-kt.github.io/coil/upgrading_to_coil3/)
+
+## [3.0.0-alpha05] - February 28, 2024
+
+- **New**: Support the `wasmJs` target.
+- Create `DrawablePainter` and `DrawableImage` to support drawing `Image`s that aren't backed by a `Bitmap` on non-Android platforms.
+    - The `Image` APIs are experimental and likely to change between alpha releases.
+- Update `ContentPainterModifier` to implement `Modifier.Node`.
+- Fix: Lazily register component callbacks and the network observer on a background thread. This fixes slow initialization that would typically occur on the main thread.
+- Fix: Fix `ImageLoader.Builder.placeholder/error/fallback` not being used by `ImageRequest`.
+- Update Compose to 1.6.0.
+- Update Coroutines to 1.8.0.
+- Update Okio to 3.8.0.
+- Update Skiko to 0.7.94.
+- [For the full list of important changes in 3.x, check out the upgrade guide.](https://coil-kt.github.io/coil/upgrading_to_coil3/)
+
+## [2.6.0] - February 23, 2024
+
+- Make `rememberAsyncImagePainter`, `AsyncImage`, and `SubcomposeAsyncImage` [restartable and skippable](https://developer.android.com/jetpack/compose/performance/stability#functions). This improves performance by avoiding recomposition unless one of the composable's arguments changes.
+    - Add an optional `modelEqualityDelegate` argument to `rememberAsyncImagePainter`, `AsyncImage`, and `SubcomposeAsyncImage` to control whether the `model` will trigger a recomposition.
+- Update `ContentPainterModifier` to implement `Modifier.Node`.
+- Fix: Lazily register component callbacks and the network observer on a background thread. This fixes slow initialization that would typically occur on the main thread.
+- Fix: Avoid relaunching a new image request in `rememberAsyncImagePainter`, `AsyncImage`, and `SubcomposeAsyncImage` if `ImageRequest.listener` or `ImageRequest.target` change.
+- Fix: Don't observe the image request twice in `AsyncImagePainter`.
+- Update Kotlin to 1.9.22.
+- Update Compose to 1.6.1.
+- Update Okio to 3.8.0.
+- Update `androidx.collection` to 1.4.0.
+- Update `androidx.lifecycle` to 2.7.0.
+
+## [3.0.0-alpha04] - February 1, 2024
+
+- **Breaking**: Remove `Lazy` from `OkHttpNetworkFetcherFactory` and `KtorNetworkFetcherFactory`'s public API.
+- Expose `Call.Factory` instead of `OkHttpClient` in `OkHttpNetworkFetcherFactory`.
+- Convert `NetworkResponseBody` to wrap a `ByteString`.
+- Downgrade Compose to 1.5.12.
+- [For the full list of important changes, check out the upgrade guide.](https://coil-kt.github.io/coil/upgrading_to_coil3/)
+
+## [3.0.0-alpha03] - January 20, 2024
+
+- **Breaking**: `coil-network` has been renamed to `coil-network-ktor`. Additionally, there is a new `coil-network-okhttp` artifact that depends on OkHttp and doesn't require specifying a Ktor engine.
+    - Depending on which artifact you import you can reference the `Fetcher.Factory` manually using `KtorNetworkFetcherFactory` or `OkHttpNetworkFetcherFactory`.
+- Support loading `NSUrl` on Apple platforms.
+- Add `clipToBounds` parameter to `AsyncImage`.
+- [For the full list of important changes, check out the upgrade guide.](https://coil-kt.github.io/coil/upgrading_to_coil3/)
+
+## [3.0.0-alpha02] - January 10, 2024
+
+- **Breaking**: `coil-gif`, `coil-network`, `coil-svg`, and `coil-video`'s packages have been updated so all their classes are part of `coil.gif`, `coil.network`, `coil.svg`, and `coil.video` respectively. This helps avoid class name conflicts with other artifacts.
+- **Breaking**: `ImageDecoderDecoder` has been renamed to `AnimatedImageDecoder`.
+- **New**: `coil-gif`, `coil-network`, `coil-svg`, and `coil-video`'s components are now automatically added to each `ImageLoader`'s `ComponentRegistry`.
+    - To be clear, unlike `3.0.0-alpha01` **you do not need to manually add `NetworkFetcher.Factory()` to your `ComponentRegistry`**. Simply importing `io.coil-kt.coil3:coil-network:[version]` and [a Ktor engine](https://ktor.io/docs/http-client-engines.html#dependencies) is enough to load network images.
+    - It's safe to also add these components to `ComponentRegistry` manually. Any manually added components take precedence over components that are added automatically.
+    - If preferred, this behaviour can be disabled using `ImageLoader.Builder.serviceLoaderEnabled(false)`.
+- **New**: Support `coil-svg` on all platforms. It's backed by [AndroidSVG](https://bigbadaboom.github.io/androidsvg/) on Android and [SVGDOM](https://api.skia.org/classSkSVGDOM.html) on non-Android platforms.
+- Coil now uses Android's [`ImageDecoder`](https://developer.android.com/reference/android/graphics/ImageDecoder) API internally, which has performance benefits when decoding directly from a file, resource, or content URI.
+- Fix: Multiple `coil3.Uri` parsing fixes.
+- [For the full list of important changes, check out the upgrade guide.](https://coil-kt.github.io/coil/upgrading_to_coil3/)
+
+## [3.0.0-alpha01] - December 30, 2023
+
+- **New**: [Compose Multiplatform](https://www.jetbrains.com/lp/compose-multiplatform/) support. Coil is now a Kotlin Multiplatform library that supports Android, JVM, iOS, macOS, and Javascript.
+- Coil's Maven coordinates were updated to `io.coil-kt.coil3` and its imports were updated to `coil3`. This allows Coil 3 to run side by side with Coil 2 without binary compatibility issues. For example, `io.coil-kt:coil:[version]` is now `io.coil-kt.coil3:coil:[version]`.
+- The `coil-base` and `coil-compose-base` artifacts were renamed to `coil-core` and `coil-compose-core` respectively to align with the naming conventions used by Coroutines, Ktor, and AndroidX.
+- [For the full list of important changes, check out the upgrade guide.](https://coil-kt.github.io/coil/upgrading_to_coil3/)
+
+## [2.5.0] - October 30, 2023
+
+- **New**: Add `MediaDataSourceFetcher.Factory` to support decoding `MediaDataSource` implementations in `coil-video`. ([#1795](https://github.com/coil-kt/coil/pull/1795))
+- Add the `SHIFT6m` device to the hardware bitmap blocklist. ([#1812](https://github.com/coil-kt/coil/pull/1812))
+- Fix: Guard against painters that return a size with one unbounded dimension. ([#1826](https://github.com/coil-kt/coil/pull/1826))
+- Fix: Disk cache load fails after `304 Not Modified` when cached headers include non-ASCII characters. ([#1839](https://github.com/coil-kt/coil/pull/1839))
+- Fix: `FakeImageEngine` not updating the interceptor chain's request. ([#1905](https://github.com/coil-kt/coil/pull/1905))
+- Update compile SDK to 34.
+- Update Kotlin to 1.9.10.
+- Update Coroutines to 1.7.3.
+- Update `accompanist-drawablepainter` to 0.32.0.
+- Update `androidx.annotation` to 1.7.0.
+- Update `androidx.compose.foundation` to 1.5.4.
+- Update `androidx.core` to 1.12.0.
+- Update `androidx.exifinterface:exifinterface` to 1.3.6.
+- Update `androidx.lifecycle` to 2.6.2.
+- Update `com.squareup.okhttp3` to 4.12.0.
+- Update `com.squareup.okio` to 3.6.0.
+
+## [2.4.0] - May 21, 2023
+
+- Rename `DiskCache` `get`/`edit` to `openSnapshot`/`openEditor`.
+- Don't automatically convert `ColorDrawable` to `ColorPainter` in `AsyncImagePainter`.
+- Annotate simple `AsyncImage` overloads with `@NonRestartableComposable`.
+- Fix: Call `Context.cacheDir` lazily in `ImageSource`.
+- Fix: Fix publishing `coil-bom`.
+- Fix: Fix always setting bitmap config to `ARGB_8888` if hardware bitmaps are disabled.
+- Update Kotlin to 1.8.21.
+- Update Coroutines to 1.7.1.
+- Update `accompanist-drawablepainter` to 0.30.1.
+- Update `androidx.compose.foundation` to 1.4.3.
+- Update `androidx.profileinstaller:profileinstaller` to 1.3.1.
+- Update `com.squareup.okhttp3` to 4.11.0.
+
+## [2.3.0] - March 25, 2023
+
+- **New**: Introduce a new `coil-test` artifact, which includes `FakeImageLoaderEngine`. This class is useful for hardcoding image loader responses to ensure consistent and synchronous (from the main thread) responses in tests. See [here](https://coil-kt.github.io/coil/testing) for more info.
+- **New**: Add [baseline profiles](https://developer.android.com/topic/performance/baselineprofiles/overview) to `coil-base` (child module of `coil`) and `coil-compose-base` (child module of `coil-compose`).
+    - This improves Coil's runtime performance and should offer [better frame timings](https://github.com/coil-kt/coil/tree/main/coil-benchmark/benchmark_output.md) depending on how Coil is used in your app.
+- Fix: Fix parsing `file://` URIs with encoded data. [#1601](https://github.com/coil-kt/coil/pull/1601)
+- Fix: `DiskCache` now properly computes its maximum size if passed a directory that does not exist. [#1620](https://github.com/coil-kt/coil/pull/1620)
+- Make `Coil.reset` public API. [#1506](https://github.com/coil-kt/coil/pull/1506)
+- Enable Java default method generation. [#1491](https://github.com/coil-kt/coil/pull/1491)
+- Update Kotlin to 1.8.10.
+- Update `accompanist-drawablepainter` to 0.30.0.
+- Update `androidx.annotation` to 1.6.0.
+- Update `androidx.appcompat:appcompat-resources` to 1.6.1.
+- Update `androidx.compose.foundation` to 1.4.0.
+- Update `androidx.core` to 1.9.0.
+- Update `androidx.exifinterface:exifinterface` to 1.3.6.
+- Update `androidx.lifecycle` to 2.6.1.
+- Update `okio` to 3.3.0.
+
+## [2.2.2] - October 1, 2022
+
+- Ensure an image loader is fully initialized before registering its system callbacks. [#1465](https://github.com/coil-kt/coil/pull/1465)
+- Set the preferred bitmap config in `VideoFrameDecoder` on API 30+ to avoid banding. [#1487](https://github.com/coil-kt/coil/pull/1487)
+- Fix parsing paths containing `#` in `FileUriMapper`. [#1466](https://github.com/coil-kt/coil/pull/1466)
+- Fix reading responses with non-ascii headers from the disk cache. [#1468](https://github.com/coil-kt/coil/pull/1468)
+- Fix decoding videos inside asset subfolders. [#1489](https://github.com/coil-kt/coil/pull/1489)
+- Update `androidx.annotation` to 1.5.0.
+
+## [2.2.1] - September 8, 2022
+
+- Fix: `RoundedCornersTransformation` now properly scales the `input` bitmap.
+- Remove dependency on the `kotlin-parcelize` plugin.
+- Update compile SDK to 33.
+- Downgrade `androidx.appcompat:appcompat-resources` to 1.4.2 to work around [#1423](https://github.com/coil-kt/coil/issues/1423).
+
+## [2.2.0] - August 16, 2022
+
+- **New**: Add `ImageRequest.videoFramePercent` to `coil-video` to support specifying the video frame as a percent of the video's duration.
+- **New**: Add `ExifOrientationPolicy` to configure how `BitmapFactoryDecoder` treats EXIF orientation data.
+- Fix: Don't throw an exception in `RoundedCornersTransformation` if passed a size with an undefined dimension.
+- Fix: Read a GIF's frame delay as two unsigned bytes instead of one signed byte.
+- Update Kotlin to 1.7.10.
+- Update Coroutines to 1.6.4.
+- Update Compose to 1.2.1.
+- Update OkHttp to 4.10.0.
+- Update Okio to 3.2.0.
+- Update `accompanist-drawablepainter` to 0.25.1.
+- Update `androidx.annotation` to 1.4.0.
+- Update `androidx.appcompat:appcompat-resources` to 1.5.0.
+- Update `androidx.core` to 1.8.0.
+
+## [2.1.0] - May 17, 2022
+
+- **New**: Support loading `ByteArray`s. ([#1202](https://github.com/coil-kt/coil/pull/1202))
+- **New**: Support setting custom CSS rules for SVGs using `ImageRequest.Builder.css`. ([#1210](https://github.com/coil-kt/coil/pull/1210))
+- Fix: Convert `GenericViewTarget`'s private methods to protected. ([#1273](https://github.com/coil-kt/coil/pull/1273))
+- Update compile SDK to 32. ([#1268](https://github.com/coil-kt/coil/pull/1268))
+
+## [2.0.0] - May 10, 2022
+
+Coil 2.0.0 is a major iteration of the library and includes breaking changes. Check out the [upgrade guide](https://coil-kt.github.io/coil/upgrading/) for how to upgrade.
+
+- **New**: Introduce `AsyncImage` in `coil-compose`. Check out [the documentation](https://coil-kt.github.io/coil/compose/) for more info.
+
+```kotlin
+// Display an image from the network.
+AsyncImage(
+    model = "https://example.com/image.jpg",
+    contentDescription = null,
+)
+
+// Display an image from the network with a placeholder, circle crop, and crossfade animation.
+AsyncImage(
+    model = ImageRequest.Builder(LocalContext.current)
+        .data("https://example.com/image.jpg")
+        .crossfade(true)
+        .build(),
+    placeholder = painterResource(R.drawable.placeholder),
+    contentDescription = stringResource(R.string.description),
+    contentScale = ContentScale.Crop,
+    modifier = Modifier.clip(CircleShape)
+)
+```
+
+- **New**: Introduce a public `DiskCache` API.
+    - Use `ImageLoader.Builder.diskCache` and `DiskCache.Builder` to configure the disk cache.
+    - You should not use OkHttp's `Cache` with Coil 2.0. See [here](https://coil-kt.github.io/coil/upgrading_to_coil2/#disk-cache) for more info.
+    - `Cache-Control` and other cache headers are still supported - except `Vary` headers, as the cache only checks that the URLs match. Additionally, only responses with a response code in the range [200..300) are cached.
+    - Existing disk caches will be cleared when upgrading to 2.0.
+- The minimum supported API is now 21.
+- `ImageRequest`'s default `Scale` is now `Scale.FIT`.
+    - This was changed to make `ImageRequest.scale` consistent with other classes that have a default `Scale`.
+    - Requests with an `ImageViewTarget` still have their `Scale` auto-detected.
+- Rework the image pipeline classes:
+    - `Mapper`, `Fetcher`, and `Decoder` have been refactored to be more flexible.
+    - `Fetcher.key` has been replaced with a new `Keyer` interface. `Keyer` creates the cache key from the input data.
+    - Add `ImageSource`, which allows `Decoder`s to read `File`s directly using Okio's file system API.
+- Rework the Jetpack Compose integration:
+    - `rememberImagePainter` and `ImagePainter` have been renamed to `rememberAsyncImagePainter` and `AsyncImagePainter` respectively.
+    - Deprecate `LocalImageLoader`. Check out the deprecation message for more info.
+- Disable generating runtime not-null assertions.
+    - If you use Java, passing null as a not-null annotated argument to a function will no longer throw a `NullPointerException` immediately. Kotlin's compile-time null safety guards against this happening.
+    - This change allows the library's size to be smaller.
+- `Size` is now composed of two `Dimension` values for its width and height. `Dimension` can either be a positive pixel value or `Dimension.Undefined`. See [here](https://coil-kt.github.io/coil/upgrading/#size-refactor) for more info.
+- `BitmapPool` and `PoolableViewTarget` have been removed from the library.
+- `VideoFrameFileFetcher` and `VideoFrameUriFetcher` have been removed from the library. Use `VideoFrameDecoder` instead, which supports all data sources.
+- [`BlurTransformation`](https://github.com/coil-kt/coil/blob/845f39383f332428077c666e3567b954675ce248/coil-core/src/main/java/coil/transform/BlurTransformation.kt) and [`GrayscaleTransformation`](https://github.com/coil-kt/coil/blob/845f39383f332428077c666e3567b954675ce248/coil-core/src/main/java/coil/transform/GrayscaleTransformation.kt) are removed from the library. If you use them, you can copy their code into your project.
+- Change `Transition.transition` to be a non-suspending function as it's no longer needed to suspend the transition until it completes.
+- Add support for `bitmapFactoryMaxParallelism`, which restricts the maximum number of in-progress `BitmapFactory` operations. This value is 4 by default, which improves UI performance.
+- Add support for `interceptorDispatcher`, `fetcherDispatcher`, `decoderDispatcher`, and `transformationDispatcher`.
+- Add `GenericViewTarget`, which handles common `ViewTarget` logic.
+- Add `ByteBuffer` to the default supported data types.
+- `Disposable` has been refactored and exposes the underlying `ImageRequest`'s job.
+- Rework the `MemoryCache` API.
+- `ImageRequest.error` is now set on the `Target` if `ImageRequest.fallback` is null.
+- `Transformation.key` is replaced with `Transformation.cacheKey`.
+- Update Kotlin to 1.6.10.
+- Update Compose to 1.1.1.
+- Update OkHttp to 4.9.3.
+- Update Okio to 3.0.0.
+
+Changes from `2.0.0-rc03`:
+- Convert `Dimension.Original` to be `Dimension.Undefined`.
+    - This changes the semantics of the non-pixel dimension slightly to fix some edge cases ([example](https://github.com/coil-kt/coil/issues/1246)) in the size system.
+- Load images with `Size.ORIGINAL` if ContentScale is None.
+- Fix applying `ImageView.load` builder argument first instead of last.
+- Fix not combining HTTP headers if response is not modified.
+
+## [2.0.0-rc03] - April 11, 2022
+
+- Remove the `ScaleResolver` interface.
+- Convert `Size` constructors to functions.
+- Change `Dimension.Pixels`'s `toString` to only be its pixel value.
+- Guard against a rare crash in `SystemCallbacks.onTrimMemory`.
+- Update Coroutines to 1.6.1.
+
+## [2.0.0-rc02] - March 20, 2022
+
+- Revert `ImageRequest`'s default size to be the size of the current display instead of `Size.ORIGINAL`.
+- Fix `DiskCache.Builder` being marked as experimental. Only `DiskCache`'s methods are experimental.
+- Fix case where loading an image into an `ImageView` with one dimension as `WRAP_CONTENT` would load the image at its original size instead of fitting it into the bounded dimension.
+- Remove component functions from `MemoryCache.Key`, `MemoryCache.Value`, and `Parameters.Entry`.
+
+## [2.0.0-rc01] - March 2, 2022
+
+Significant changes since `1.4.0`:
+
+- The minimum supported API is now 21.
+- Rework the Jetpack Compose integration.
+    - `rememberImagePainter` has been renamed to `rememberAsyncImagePainter`.
+    - Add support for `AsyncImage` and `SubcomposeAsyncImage`. Check out [the documentation](https://coil-kt.github.io/coil/compose/) for more info.
+    - Deprecate `LocalImageLoader`. Check out the deprecation message for more info.
+- Coil 2.0 has its own disk cache implementation and no longer relies on OkHttp for disk caching.
+    - Use `ImageLoader.Builder.diskCache` and `DiskCache.Builder` to configure the disk cache.
+    - You **should not** use OkHttp's `Cache` with Coil 2.0 as the cache can be corrupted if a thread is interrupted while writing to it.
+    - `Cache-Control` and other cache headers are still supported - except `Vary` headers, as the cache only checks that the URLs match. Additionally, only responses with a response code in the range [200..300) are cached.
+    - Existing disk caches will be cleared when upgrading to 2.0.
+- `ImageRequest`'s default `Scale` is now `Scale.FIT`.
+    - This was changed to make `ImageRequest.scale` consistent with other classes that have a default `Scale`.
+    - Requests with an `ImageViewTarget` still have their `Scale` auto-detected.
+- `ImageRequest`'s default size is now `Size.ORIGINAL`.
+- Rework the image pipeline classes:
+    - `Mapper`, `Fetcher`, and `Decoder` have been refactored to be more flexible.
+    - `Fetcher.key` has been replaced with a new `Keyer` interface. `Keyer` creates the cache key from the input data.
+    - Add `ImageSource`, which allows `Decoder`s to read `File`s directly using Okio's file system API.
+- Disable generating runtime not-null assertions.
+    - If you use Java, passing null as a not-null annotated parameter to a function will no longer throw a `NullPointerException` immediately. Kotlin's compile-time null safety guards against this happening.
+    - This change allows the library's size to be smaller.
+- `Size` is now composed of two `Dimension` values for its width and height. `Dimension` can either be a positive pixel value or `Dimension.Original`.
+- `BitmapPool` and `PoolableViewTarget` have been removed from the library.
+- `VideoFrameFileFetcher` and `VideoFrameUriFetcher` are removed from the library. Use `VideoFrameDecoder` instead, which supports all data sources.
+- [`BlurTransformation`](https://github.com/coil-kt/coil/blob/845f39383f332428077c666e3567b954675ce248/coil-core/src/main/java/coil/transform/BlurTransformation.kt) and [`GrayscaleTransformation`](https://github.com/coil-kt/coil/blob/845f39383f332428077c666e3567b954675ce248/coil-core/src/main/java/coil/transform/GrayscaleTransformation.kt) are removed from the library. If you use them, you can copy their code into your project.
+- Change `Transition.transition` to be a non-suspending function as it's no longer needed to suspend the transition until it completes.
+- Add support for `bitmapFactoryMaxParallelism`, which restricts the maximum number of in-progress `BitmapFactory` operations. This value is 4 by default, which improves UI performance.
+- Add support for `interceptorDispatcher`, `fetcherDispatcher`, `decoderDispatcher`, and `transformationDispatcher`.
+- Add `GenericViewTarget`, which handles common `ViewTarget` logic.
+- Add `ByteBuffer` to the default supported data types.
+- `Disposable` has been refactored and exposes the underlying `ImageRequest`'s job.
+- Rework the `MemoryCache` API.
+- `ImageRequest.error` is now set on the `Target` if `ImageRequest.fallback` is null.
+- `Transformation.key` is replaced with `Transformation.cacheKey`.
+- Update Kotlin to 1.6.10.
+- Update Compose to 1.1.1.
+- Update OkHttp to 4.9.3.
+- Update Okio to 3.0.0.
+
+Changes since `2.0.0-alpha09`:
+
+- Remove the `-Xjvm-default=all` compiler flag.
+- Fix failing to load image if multiple requests with must-revalidate/e-tag are executed concurrently.
+- Fix `DecodeUtils.isSvg` returning false if there is a new line character after the `<svg` tag.
+- Make `LocalImageLoader.provides` deprecation message clearer.
+- Update Compose to 1.1.1.
+- Update `accompanist-drawablepainter` to 0.23.1.
+
+## [2.0.0-alpha09] - February 16, 2022
+
+- Fix `AsyncImage` creating invalid constraints. ([#1134](https://github.com/coil-kt/coil/pull/1134))
+- Add `ContentScale` argument to `AsyncImagePainter`. ([#1144](https://github.com/coil-kt/coil/pull/1144))
+    - This should be set to the same value that's set on `Image` to ensure that the image is loaded at the correct size.
+- Add `ScaleResolver` to support lazily resolving the `Scale` for an `ImageRequest`. ([#1134](https://github.com/coil-kt/coil/pull/1134))
+    - `ImageRequest.scale` should be replaced by `ImageRequest.scaleResolver.scale()`.
+- Update Compose to 1.1.0.
+- Update `accompanist-drawablepainter` to 0.23.0.
+- Update `androidx.lifecycle` to 2.4.1.
+
+## [2.0.0-alpha08] - February 7, 2022
+
+- Update `DiskCache` and `ImageSource` to use to Okio's `FileSystem` API. ([#1115](https://github.com/coil-kt/coil/pull/1115))
+
+## [2.0.0-alpha07] - January 30, 2022
+
+- Significantly improve `AsyncImage` performance and split `AsyncImage` into `AsyncImage` and `SubcomposeAsyncImage`. ([#1048](https://github.com/coil-kt/coil/pull/1048))
+    - `SubcomposeAsyncImage` provides `loading`/`success`/`error`/`content` slot APIs and uses subcomposition which has worse performance.
+    -  `AsyncImage` provides `placeholder`/`error`/`fallback` arguments to overwrite the `Painter` that's drawn when loading or if the request is unsuccessful. `AsyncImage` does not use subcomposition and has much better performance than `SubcomposeAsyncImage`.
+    - Remove `AsyncImagePainter.State` argument from `SubcomposeAsyncImage.content`. Use `painter.state` if needed.
+    - Add `onLoading`/`onSuccess`/`onError` callbacks to both `AsyncImage` and `SubcomposeAsyncImage`.
+- Deprecate `LocalImageLoader`. ([#1101](https://github.com/coil-kt/coil/pull/1101))
+- Add support for `ImageRequest.tags`. ([#1066](https://github.com/coil-kt/coil/pull/1066))
+- Move `isGif`, `isWebP`, `isAnimatedWebP`, `isHeif`, and `isAnimatedHeif` in `DecodeUtils` into coil-gif. Add `isSvg` to coil-svg. ([#1117](https://github.com/coil-kt/coil/pull/1117))
+- Convert `FetchResult` and `DecodeResult` to be non-data classes. ([#1114](https://github.com/coil-kt/coil/pull/1114))
+- Remove unused `DiskCache.Builder` context argument. ([#1099](https://github.com/coil-kt/coil/pull/1099))
+- Fix scaling for bitmap resources with original size. ([#1072](https://github.com/coil-kt/coil/pull/1072))
+- Fix failing to close `ImageDecoder` in `ImageDecoderDecoder`. ([#1109](https://github.com/coil-kt/coil/pull/1109))
+- Fix incorrect scaling when converting a drawable to a bitmap. ([#1084](https://github.com/coil-kt/coil/pull/1084))
+- Update Compose to 1.1.0-rc03.
+- Update `accompanist-drawablepainter` to 0.22.1-rc.
+- Update `androidx.appcompat:appcompat-resources` to 1.4.1.
+
+## [2.0.0-alpha06] - December 24, 2021
+
+- Add `ImageSource.Metadata` to support decoding from assets, resources, and content URIs without buffering or temporary files. ([#1060](https://github.com/coil-kt/coil/pull/1060))
+- Delay executing the image request until `AsyncImage` has positive constraints. ([#1028](https://github.com/coil-kt/coil/pull/1028))
+- Fix using `DefaultContent` for `AsyncImage` if `loading`, `success`, and `error` are all set. ([#1026](https://github.com/coil-kt/coil/pull/1026))
+- Use androidx `LruCache` instead of the platform `LruCache`. ([#1047](https://github.com/coil-kt/coil/pull/1047))
+- Update Kotlin to 1.6.10.
+- Update Coroutines to 1.6.0.
+- Update Compose to 1.1.0-rc01.
+- Update `accompanist-drawablepainter` to 0.22.0-rc.
+- Update `androidx.collection` to 1.2.0.
+
+## [2.0.0-alpha05] - November 28, 2021
+
+- **Important**: Refactor `Size` to support using the image's original size for either dimension.
+    - `Size` is now composed of two `Dimension` values for its width and height. `Dimension` can either be a positive pixel value or `Dimension.Original`.
+    - This change was made to better support unbounded width/height values (e.g. `wrap_content`, `Constraints.Infinity`) when one dimension is a fixed pixel value.
+- Fix: Support inspection mode (preview) for `AsyncImage`.
+- Fix: `SuccessResult.memoryCacheKey` should always be `null` if `imageLoader.memoryCache` is null.
+- Convert `ImageLoader`, `SizeResolver`, and `ViewSizeResolver` constructor-like `invoke` functions to top level functions.
+- Make `CrossfadeDrawable` start and end drawables public API.
+- Mutate `ImageLoader` placeholder/error/fallback drawables.
+- Add default arguments to `SuccessResult`'s constructor.
+- Depend on `androidx.collection` instead of `androidx.collection-ktx`.
+- Update OkHttp to 4.9.3.
+
+## [2.0.0-alpha04] - November 22, 2021
+
+- **New**: Add `AsyncImage` to `coil-compose`.
+    - `AsyncImage` is a composable that executes an `ImageRequest` asynchronously and renders the result.
+    - **`AsyncImage` is intended to replace `rememberImagePainter` for most use cases.**
+    - Its API is not final and may change before the final 2.0 release.
+    - It has a similar API to `Image` and supports the same arguments: `Alignment`, `ContentScale`, `alpha`, `ColorFilter`, and `FilterQuality`.
+    - It supports overwriting what's drawn for each `AsyncImagePainter` state using the `content`, `loading`, `success`, and `error` arguments.
+    - It fixes a number of design issues that `rememberImagePainter` has with resolving image size and scale.
+    - Example usages:
+
+```kotlin
+// Only draw the image.
+AsyncImage(
+    model = "https://example.com/image.jpg",
+    contentDescription = null, // Avoid `null` and set this to a localized string if possible.
+)
+
+// Draw the image with a circle crop, crossfade, and overwrite the `loading` state.
+AsyncImage(
+    model = ImageRequest.Builder(LocalContext.current)
+        .data("https://example.com/image.jpg")
+        .crossfade(true)
+        .build(),
+    contentDescription = null,
+    modifier = Modifier
+        .clip(CircleShape),
+    loading = {
+        CircularProgressIndicator()
+    },
+    contentScale = ContentScale.Crop
+)
+
+// Draw the image with a circle crop, crossfade, and overwrite all states.
+AsyncImage(
+    model = ImageRequest.Builder(LocalContext.current)
+        .data("https://example.com/image.jpg")
+        .crossfade(true)
+        .build(),
+    contentDescription = null,
+    modifier = Modifier
+        .clip(CircleShape),
+    contentScale = ContentScale.Crop
+) { state ->
+    if (state is AsyncImagePainter.State.Loading) {
+        CircularProgressIndicator()
+    } else {
+        AsyncImageContent() // Draws the image.
+    }
+}
+```
+
+- **Important**: Rename `ImagePainter` to `AsyncImagePainter` and `rememberImagePainter` to `rememberAsyncImagePainter`.
+    - `ExecuteCallback` is no longer supported. To have the `AsyncImagePainter` skip waiting for `onDraw` to be called, set `ImageRequest.size(OriginalSize)` (or any size) instead.
+    - Add an optional `FilterQuality` argument to `rememberAsyncImagePainter`.
+- Use coroutines for cleanup operations in `DiskCache` and add `DiskCache.Builder.cleanupDispatcher`.
+- Fix Compose preview for placeholder set using `ImageLoader.Builder.placeholder`.
+- Mark `LocalImageLoader.current` with `@ReadOnlyComposable` to generate more efficient code.
+- Update Compose to 1.1.0-beta03 and depend on `compose.foundation` instead of `compose.ui`.
+- Update `androidx.appcompat-resources` to 1.4.0.
+
+## [2.0.0-alpha03] - November 12, 2021
+
+- Add ability to load music thumbnails on Android 29+. ([#967](https://github.com/coil-kt/coil/pull/967))
+- Fix: Use `context.resources` to load resources for current package. ([#968](https://github.com/coil-kt/coil/pull/968))
+- Fix: `clear` -> `dispose` replacement expression. ([#970](https://github.com/coil-kt/coil/pull/970))
+- Update Compose to 1.0.5.
+- Update `accompanist-drawablepainter` to 0.20.2.
+- Update Okio to 3.0.0.
+- Update `androidx.annotation` to 1.3.0.
+- Update `androidx.core` to 1.7.0.
+- Update `androidx.lifecycle` to 2.4.0.
+    - Remove dependency on `lifecycle-common-java8` as it's been merged into `lifecycle-common`.
+
+## [2.0.0-alpha02] - October 24, 2021
+
+- Add a new `coil-bom` artifact which includes a [bill of materials](https://docs.gradle.org/7.2/userguide/platforms.html#sub:bom_import).
+    - Importing `coil-bom` allows you to depend on other Coil artifacts without specifying a version.
+- Fix failing to load an image when using `ExecuteCallback.Immediate`.
+- Update Okio to 3.0.0-alpha.11.
+    - This also resolves a compatibility issue with Okio 3.0.0-alpha.11.
+- Update Kotlin to 1.5.31.
+- Update Compose to 1.0.4.
+
+## [2.0.0-alpha01] - October 11, 2021
+
+Coil 2.0.0 is the next major iteration of the library and has new features, performance improvements, API improvements, and various bug fixes. This release may be binary/source incompatible with future alpha releases until the stable release of 2.0.0.
+
+- **Important**: The minimum supported API is now 21.
+- **Important**: Enable `-Xjvm-default=all`.
+    - This generates Java 8 default methods instead of using Kotlin's default interface method support. Check out [this blog post](https://blog.jetbrains.com/kotlin/2020/07/kotlin-1-4-m3-generating-default-methods-in-interfaces/) for more information.
+    - **You'll need to add `-Xjvm-default=all` or `-Xjvm-default=all-compatibility` to your build file as well.** See [here](https://coil-kt.github.io/coil/faq/#how-do-i-target-java-8) for how to do this.
+- **Important**: Coil now has its own disk cache implementation and no longer relies on OkHttp for disk caching.
+    - This change was made to:
+        - Better support thread interruption while decoding images. This improves performance when image requests are started and stopped in quick succession.
+        - Support exposing `ImageSource`s backed by `File`s. This avoids unnecessary copying when an Android API requires a `File` to decode (e.g. `MediaMetadataRetriever`).
+        - Support reading from/writing to the disk cache files directly.
+    - Use `ImageLoader.Builder.diskCache` and `DiskCache.Builder` to configure the disk cache.
+    - You **should not** use OkHttp's `Cache` with Coil 2.0 as it can be corrupted if it's interrupted while writing to it.
+    - `Cache-Control` and other cache headers are still supported - except `Vary` headers, as the cache only checks that the URLs match. Additionally, only responses with a response code in the range [200..300) are cached.
+    - Support for cache headers can be enabled or disabled using `ImageLoader.Builder.respectCacheHeaders`.
+    - Your existing disk cache will be cleared and rebuilt when upgrading to 2.0.
+- **Important**: `ImageRequest`'s default `Scale` is now `Scale.FIT`
+    - This was changed to make `ImageRequest.scale` consistent with other classes that have a default `Scale`.
+    - Requests with an `ImageViewTarget` still have their scale autodetected.
+- Significant changes to the image pipeline classes:
+    - `Mapper`, `Fetcher`, and `Decoder` have been refactored to be more flexible.
+    - `Fetcher.key` has been replaced with a new `Keyer` interface. `Keyer` creates the cache key from the input data.
+    - Adds `ImageSource`, which allows `Decoder`s to decode `File`s directly.
+- `BitmapPool` and `PoolableViewTarget` have been removed from the library. Bitmap pooling was removed because:
+    - It's most effective on <= API 23 and has become less effective with newer Android releases.
+    - Removing bitmap pooling allows Coil to use immutable bitmaps, which have performance benefits.
+    - There's runtime overhead to manage the bitmap pool.
+    - Bitmap pooling creates design restrictions on Coil's API as it requires tracking if a bitmap is eligible for pooling. Removing bitmap pooling allows Coil to expose the result `Drawable` in more places (e.g. `Listener`, `Disposable`). Additionally, this means Coil doesn't have to clear `ImageView`s, which has can cause [issues](https://github.com/coil-kt/coil/issues/650).
+    - Bitmap pooling is [error-prone](https://github.com/coil-kt/coil/issues/546). Allocating a new bitmap is much safer than attempting to re-use a bitmap that could still be in use.
+- `MemoryCache` has been refactored to be more flexible.
+- Disable generating runtime not-null assertions.
+    - If you use Java, passing null as a not-null annotated parameter to a function will no longer throw a `NullPointerException` immediately. If you use Kotlin, there is essentially no change.
+    - This change allows the library's size to be smaller.
+- `VideoFrameFileFetcher` and `VideoFrameUriFetcher` are removed from the library. Use `VideoFrameDecoder` instead, which supports all data sources.
+- Adds support for `bitmapFactoryMaxParallelism`, which restricts the maximum number of in-progress `BitmapFactory` operations. This value is 4 by default, which improves UI performance.
+- Adds support for `interceptorDispatcher`, `fetcherDispatcher`, `decoderDispatcher`, and `transformationDispatcher`.
+- `Disposable` has been refactored and exposes the underlying `ImageRequest`'s job.
+- Change `Transition.transition` to be a non-suspending function as it's no longer needed to suspend the transition until it completes.
+- Add `GenericViewTarget`, which handles common `ViewTarget` logic.
+- [`BlurTransformation`](https://github.com/coil-kt/coil/blob/845f39383f332428077c666e3567b954675ce248/coil-core/src/main/java/coil/transform/BlurTransformation.kt) and [`GrayscaleTransformation`](https://github.com/coil-kt/coil/blob/845f39383f332428077c666e3567b954675ce248/coil-core/src/main/java/coil/transform/GrayscaleTransformation.kt) are removed from the library.
+    - If you use them, you can copy their code into your project.
+- `ImageRequest.error` is now set on the `Target` if `ImageRequest.fallback` is null.
+- `Transformation.key` is replaced with `Transformation.cacheKey`.
+- `ImageRequest.Listener` returns `SuccessResult`/`ErrorResult` in `onSuccess` and `onError` respectively.
+- Add `ByteBuffer`s to the default supported data types.
+- Remove `toString` implementations from several classes.
+- Update OkHttp to 4.9.2.
+- Update Okio to 3.0.0-alpha.10.
+
+## [1.4.0] - October 6, 2021
+
+- **New**: Add `ImageResult` to `ImagePainter.State.Success` and `ImagePainter.State.Error`. ([#887](https://github.com/coil-kt/coil/pull/887))
+    - This is a binary incompatible change to the signatures of `ImagePainter.State.Success` and `ImagePainter.State.Error`, however these APIs are marked as experimental.
+- Only execute `CrossfadeTransition` if `View.isShown` is `true`. Previously it would only check `View.isVisible`. ([#898](https://github.com/coil-kt/coil/pull/898))
+- Fix potential memory cache miss if scaling multiplier is slightly less than 1 due to a rounding issue. ([#899](https://github.com/coil-kt/coil/pull/899))
+- Make non-inlined `ComponentRegistry` methods public. ([#925](https://github.com/coil-kt/coil/pull/925))
+- Depend on `accompanist-drawablepainter` and remove Coil's custom `DrawablePainter` implementation. ([#845](https://github.com/coil-kt/coil/pull/845))
+- Remove use of a Java 8 method to guard against desugaring issue. ([#924](https://github.com/coil-kt/coil/pull/924))
+- Promote `ImagePainter.ExecuteCallback` to stable API. ([#927](https://github.com/coil-kt/coil/pull/927))
+- Update compileSdk to 31.
+- Update Kotlin to 1.5.30.
+- Update Coroutines to 1.5.2.
+- Update Compose to 1.0.3.
+
 ## [1.3.2] - August 4, 2021
 
 - `coil-compose` now depends on `compose.ui` instead of `compose.foundation`.
@@ -44,12 +552,12 @@
 ## [1.2.0] - April 12, 2021
 
 - **Important**: Use an SVG's view bounds to calculate its aspect ratio in `SvgDecoder`. ([#688](https://github.com/coil-kt/coil/pull/688))
-  - Previously, `SvgDecoder` used an SVG's `width`/`height` elements to determine its aspect ratio, however this doesn't correctly follow the SVG specification.
-  - To revert to the old behaviour set `useViewBoundsAsIntrinsicSize = false` when constructing your `SvgDecoder`.
+    - Previously, `SvgDecoder` used an SVG's `width`/`height` elements to determine its aspect ratio, however this doesn't correctly follow the SVG specification.
+    - To revert to the old behaviour set `useViewBoundsAsIntrinsicSize = false` when constructing your `SvgDecoder`.
 - **New**: Add `VideoFrameDecoder` to support decoding video frames from any source. ([#689](https://github.com/coil-kt/coil/pull/689))
 - **New**: Support automatic SVG detection using the source's contents instead of just the MIME type. ([#654](https://github.com/coil-kt/coil/pull/654))
 - **New**: Support sharing resources using `ImageLoader.newBuilder()`. ([#653](https://github.com/coil-kt/coil/pull/653))
-  - Importantly, this enables sharing memory caches between `ImageLoader` instances.
+    - Importantly, this enables sharing memory caches between `ImageLoader` instances.
 - **New**: Add support for animated image transformations using `AnimatedTransformation`. ([#659](https://github.com/coil-kt/coil/pull/659))
 - **New**: Add support for start/end callbacks for animated drawables. ([#676](https://github.com/coil-kt/coil/pull/676))
 
@@ -57,7 +565,7 @@
 
 - Fix parsing EXIF data for HEIF/HEIC files. ([#664](https://github.com/coil-kt/coil/pull/664))
 - Fix not using the `EmptyBitmapPool` implementation if bitmap pooling is disabled. ([#638](https://github.com/coil-kt/coil/pull/638))
-  - Without this fix bitmap pooling was still disabled properly, however it used a more heavyweight `BitmapPool` implementation.
+    - Without this fix bitmap pooling was still disabled properly, however it used a more heavyweight `BitmapPool` implementation.
 - Fix case where `MovieDrawable.getOpacity` would incorrectly return transparent. ([#682](https://github.com/coil-kt/coil/pull/682))
 - Guard against the default temporary directory not existing. ([#683](https://github.com/coil-kt/coil/pull/683))
 
@@ -135,7 +643,7 @@ Changes since `1.0.0-rc3`:
 - **Important**: Launch the Interceptor chain on the main thread by default. ([#513](https://github.com/coil-kt/coil/pull/513))
     - This largely restores the behaviour from `0.11.0` and below where the memory cache would be checked synchronously on the main thread.
     - To revert to using the same behaviour as `0.12.0` where the memory cache is checked on `ImageRequest.dispatcher`, set `ImageLoader.Builder.launchInterceptorChainOnMainThread(false)`.
-    - See [`launchInterceptorChainOnMainThread`](https://coil-kt.github.io/coil/api/coil-base/coil/-image-loader/-builder/launch-interceptor-chain-on-main-thread/) for more information.
+    - See [`launchInterceptorChainOnMainThread`](https://coil-kt.github.io/coil/api/coil-core/coil3/-image-loader/-builder/launch-interceptor-chain-on-main-thread/) for more information.
 
 ---
 
@@ -159,7 +667,7 @@ Changes since `1.0.0-rc3`:
 
 - **This release requires Kotlin 1.4.0 or above.**
 - Update Kotlin to 1.4.0 and enable [`-Xjvm-default=all`](https://blog.jetbrains.com/kotlin/2020/07/kotlin-1-4-m3-generating-default-methods-in-interfaces/).
-    - **[See here](https://coil-kt.github.io/coil/getting_started/#java-8) for how to enable `-Xjvm-default=all` in your build file.**
+    - **[See here](https://coil-kt.github.io/coil/faq/#how-do-i-target-java-8) for how to enable `-Xjvm-default=all` in your build file.**
     - This generates Java 8 default methods for default Kotlin interface methods.
 - Remove all existing deprecated methods in 0.12.0.
 - Update Coroutines to 1.3.9.
@@ -175,7 +683,7 @@ Changes since `1.0.0-rc3`:
     - `coil.request.RequestDisposable` -> `coil.request.Disposable`
     - `coil.bitmappool.BitmapPool` -> `coil.bitmap.BitmapPool`
     - `coil.DefaultRequestOptions` -> `coil.request.DefaultRequestOptions`
-- **Breaking**: [`SparseIntArraySet`](https://github.com/coil-kt/coil/blob/f52addd039f0195b66f93cb0f1cad59b0832f784/coil-base/src/main/java/coil/collection/SparseIntArraySet.kt) has been removed from the public API.
+- **Breaking**: [`SparseIntArraySet`](https://github.com/coil-kt/coil/blob/f52addd039f0195b66f93cb0f1cad59b0832f784/coil-core/src/main/java/coil/collection/SparseIntArraySet.kt) has been removed from the public API.
 - **Breaking**: `TransitionTarget` no longer implements `ViewTarget`.
 - **Breaking**: `ImageRequest.Listener.onSuccess`'s signature has changed to return an `ImageResult.Metadata` instead of just a `DataSource`.
 - **Breaking**: Remove support for `LoadRequest.aliasKeys`. This API is better handled with direct read/write access to the memory cache.
@@ -267,11 +775,11 @@ Changes since `1.0.0-rc3`:
         crossfade(true)
     }
 
-    val disposable = imageLoader.load(context, "https://www.example.com/image.jpg") {
+    val disposable = imageLoader.load(context, "https://example.com/image.jpg") {
         target(imageView)
     }
 
-    val drawable = imageLoader.get("https://www.example.com/image.jpg") {
+    val drawable = imageLoader.get("https://example.com/image.jpg") {
         size(512, 512)
     }
 
@@ -282,13 +790,13 @@ Changes since `1.0.0-rc3`:
         .build()
 
     val request = LoadRequest.Builder(context)
-        .data("https://www.example.com/image.jpg")
+        .data("https://example.com/image.jpg")
         .target(imageView)
         .build()
     val disposable = imageLoader.execute(request)
 
     val request = GetRequest.Builder(context)
-        .data("https://www.example.com/image.jpg")
+        .data("https://example.com/image.jpg")
         .size(512, 512)
         .build()
     val drawable = imageLoader.execute(request).drawable
@@ -303,9 +811,9 @@ Changes since `1.0.0-rc3`:
 
 - Add a new artifact, **`io.coil-kt:coil-video`**, to decode specific frames from a video file. [Read more here](https://coil-kt.github.io/coil/videos/).
 
-- Add a new [EventListener](https://github.com/coil-kt/coil/blob/main/coil-base/src/main/java/coil/EventListener.kt) API for tracking metrics.
+- Add a new [EventListener](https://github.com/coil-kt/coil/blob/main/coil-core/src/main/java/coil/EventListener.kt) API for tracking metrics.
 
-- Add [ImageLoaderFactory](https://github.com/coil-kt/coil/blob/main/coil-singleton/src/main/java/coil/ImageLoaderFactory.kt) which can be implemented by your `Application` to simplify singleton initialization.
+- Add [ImageLoaderFactory](https://github.com/coil-kt/coil/blob/main/coil/src/main/java/coil/ImageLoaderFactory.kt) which can be implemented by your `Application` to simplify singleton initialization.
 
 ---
 
@@ -328,8 +836,8 @@ Changes since `1.0.0-rc3`:
 
 - **New**: Add `WeakMemoryCache` implementation. ([#295](https://github.com/coil-kt/coil/pull/295))
 - **New**: Add `coil-video` to support decoding video frames. ([#122](https://github.com/coil-kt/coil/pull/122))
-- **New**: Introduce [`EventListener`](https://github.com/coil-kt/coil/blob/main/coil-base/src/main/java/coil/EventListener.kt). ([#314](https://github.com/coil-kt/coil/pull/314))
-- **New**: Introduce [`ImageLoaderFactory`](https://github.com/coil-kt/coil/blob/main/coil-singleton/src/main/java/coil/ImageLoaderFactory.kt). ([#311](https://github.com/coil-kt/coil/pull/311))
+- **New**: Introduce [`EventListener`](https://github.com/coil-kt/coil/blob/main/coil-core/src/main/java/coil/EventListener.kt). ([#314](https://github.com/coil-kt/coil/pull/314))
+- **New**: Introduce [`ImageLoaderFactory`](https://github.com/coil-kt/coil/blob/main/coil/src/main/java/coil/ImageLoaderFactory.kt). ([#311](https://github.com/coil-kt/coil/pull/311))
 - **New**: Support animated HEIF image sequences on Android 11. ([#297](https://github.com/coil-kt/coil/pull/297))
 - **New**: Improve Java compatibility. ([#262](https://github.com/coil-kt/coil/pull/262))
 - **New**: Support setting a default `CachePolicy`. ([#307](https://github.com/coil-kt/coil/pull/307))
@@ -439,7 +947,7 @@ Changes since `1.0.0-rc3`:
 - **New**: Support for custom transitions. [See here for more info](https://coil-kt.github.io/coil/transitions/). Transitions are marked as experimental as the API is incubating.
 - **New**: Add `RequestDisposable.await` to support suspending while a `LoadRequest` is in progress.
 - **New**: Support setting a `fallback` drawable when request data is null.
-- **New**: Add `Precision`. This makes the size of the output `Drawable` exact while enabling scaling optimizations for targets that support scaling (e.g. `ImageViewTarget`). See [its documentation](https://github.com/coil-kt/coil/blob/main/coil-base/src/main/java/coil/size/Precision.kt) for more information.
+- **New**: Add `Precision`. This makes the size of the output `Drawable` exact while enabling scaling optimizations for targets that support scaling (e.g. `ImageViewTarget`). See [its documentation](https://github.com/coil-kt/coil/blob/main/coil-core/src/main/java/coil/size/Precision.kt) for more information.
 - **New**: Add `RequestBuilder.aliasKeys` to support matching multiple cache keys.
 
 ---
@@ -447,7 +955,7 @@ Changes since `1.0.0-rc3`:
 - Fix: Make RequestDisposable thread safe.
 - Fix: `RoundedCornersTransformation` now crops to the size of the target then rounds the corners.
 - Fix: `CircleCropTransformation` now crops from the center.
-- Fix: Add several devices to the [hardware bitmap blacklist](https://github.com/coil-kt/coil/blob/main/coil-base/src/main/java/coil/memory/HardwareBitmapService.kt).
+- Fix: Add several devices to the [hardware bitmap blacklist](https://github.com/coil-kt/coil/blob/main/coil-core/src/main/java/coil/memory/HardwareBitmapService.kt).
 - Fix: Preserve aspect ratio when converting a Drawable to a Bitmap.
 - Fix: Fix possible memory cache miss with `Scale.FIT`.
 - Fix: Ensure Parameters iteration order is deterministic.

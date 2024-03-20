@@ -9,22 +9,21 @@ Coil 是一个 Android 图片加载库，通过 Kotlin 协程的方式加载图�
 
 Coil 名字的由来：取 **Co**routine **I**mage **L**oader 首字母得来。
 
-在 [Instacart](https://www.instacart.com) 用❤️打造。
-
 ## 下载
 
 Coil 可以在 `mavenCentral()` 下载
 
 ```kotlin
-implementation("io.coil-kt:coil:1.3.2")
+implementation("io.coil-kt:coil:2.6.0")
 ```
 
 ## 快速上手
 
 可以使用 `ImageView` 的扩展函数 `load` 加载一张图片：
+
 ```kotlin
 // URL
-imageView.load("https://www.example.com/image.jpg")
+imageView.load("https://example.com/image.jpg")
 
 // Resource
 imageView.load(R.drawable.image)
@@ -38,20 +37,40 @@ imageView.load(File("/path/to/image.jpg"))
 可以使用 lambda 语法轻松配置请求选项：
 
 ```kotlin
-imageView.load("https://www.example.com/image.jpg") {
+imageView.load("https://example.com/image.jpg") {
     crossfade(true)
     placeholder(R.drawable.image)
     transformations(CircleCropTransformation())
 }
 ```
 
+#### Jetpack Compose
+
+引入 [Jetpack Compose](https://developer.android.com/jetpack/compose) 扩展库:
+
+```kotlin
+implementation("io.coil-kt:coil-compose:2.6.0")
+```
+
+使用 `AsyncImage` 加载图片:
+
+```kotlin
+AsyncImage(
+    model = "https://example.com/image.jpg",
+    contentDescription = null,
+)
+```
+
 ### 图片加载器 `ImageLoader`
+
 `imageView.load` 使用单例 `ImageLoader` 来把 `ImageRequest` 加入队列. `ImageLoader` 单例可以通过扩展方法来获取：
+
 ```kotlin
 val imageLoader = context.imageLoader
 ```
 
 此外，你也可以通过创建 `ImageLoader` 实例从而实现依赖注入：
+
 ```kotlin
 val imageLoader = ImageLoader(context)
 ```
@@ -64,7 +83,7 @@ val imageLoader = ImageLoader(context)
 
 ```kotlin
 val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
+    .data("https://example.com/image.jpg")
     .target { drawable ->
         // Handle the result.
     }
@@ -76,28 +95,22 @@ val disposable = imageLoader.enqueue(request)
 
 ```kotlin
 val request = ImageRequest.Builder(context)
-    .data("https://www.example.com/image.jpg")
+    .data("https://example.com/image.jpg")
     .build()
 val drawable = imageLoader.execute(request).drawable
 ```
 
 请至 Coil 的[完整文档](https://coil-kt.github.io/coil/getting_started/)获得更多信息。
 
-## 环境要求
-
-- AndroidX
-- Min SDK 14+
-- [Java 8+](https://coil-kt.github.io/coil/getting_started/#java-8)
-
 ## R8 / Proguard
 
 Coil 兼容 R8 混淆，您无需再添加其他的规则
 
-如果您需要混淆代码，可能需要添加对应的混淆规则：[Coroutines](https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/jvm/resources/META-INF/proguard/coroutines.pro), [OkHttp](https://github.com/square/okhttp/blob/master/okhttp/src/main/resources/META-INF/proguard/okhttp3.pro), [Okio](https://github.com/square/okio/blob/master/okio/src/jvmMain/resources/META-INF/proguard/okio.pro)。
+如果您需要混淆代码，可能需要添加对应的混淆规则：[Coroutines](https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/jvm/resources/META-INF/proguard/coroutines.pro), [OkHttp](https://github.com/square/okhttp/blob/master/okhttp/src/jvmMain/resources/META-INF/proguard/okhttp3.pro)。
 
 ## License
 
-    Copyright 2021 Coil Contributors
+    Copyright 2023 Coil Contributors
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
